@@ -13,7 +13,11 @@
 
 
 /* functions */
-
+/*task 2*/
+char **splitter(char *str);
+int handle_args(int ac, char **av);
+/*task 4*/
+void exit_shell();
 
 /* ---------- */
 
