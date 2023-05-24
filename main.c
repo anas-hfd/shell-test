@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * main - write a unix command line interpreter
+ * main - creates a simple shell
  *
  * Return: 0
  */
@@ -9,6 +9,7 @@
 int main(void)
 {
 	size_t buffer_size = 0;
+	char *command;
 	char **token, **array, *arg, *buffer = NULL;
 	int nread, status, argc;
 	pid_t pid;
@@ -24,7 +25,6 @@ int main(void)
 		if (strcmp(buffer, "exit") == 0)
 			exit_shell();
 		array = malloc(sizeof(char *) * 1024);
-		*array = buffer;
 		/* Tokenize the command line arguments */
 		argc = 0;
 		arg = strtok(buffer, " ");
@@ -37,9 +37,13 @@ int main(void)
 		pid = fork();
 		if (pid == 0)
 		{
-			if (execve(array[0], array, NULL) == -1)
+			/* Checks if the command exits in the PATH */
+			command = get_path(array[0]);
+			if (command)
+				execve(array[0], array, NULL);
+			else
 				perror("Command not found");
-				exit(1);
+			exit(1);
 		}
 		else
 			wait(&status);
