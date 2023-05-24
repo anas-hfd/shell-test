@@ -9,8 +9,7 @@
 int main(void)
 {
 	size_t buffer_size = 0;
-	char *command;
-	char **token, **array, *arg, *buffer = NULL;
+	char **array, *arg, *buffer = NULL, *command;
 	int nread, status, argc;
 	pid_t pid;
 
@@ -21,12 +20,10 @@ int main(void)
 		if (nread == EOF)
 			exit(1);
 		buffer[nread - 1] = '\0';
-		/* exit status */
-		if (strcmp(buffer, "exit") == 0)
+		if (strcmp(buffer, "exit") == 0)/* exit status */
 			exit_shell();
 		array = malloc(sizeof(char *) * 1024);
-		/* Tokenize the command line arguments */
-		argc = 0;
+		argc = 0;/* Tokenize the command line arguments */
 		arg = strtok(buffer, " ");
 		while (arg != NULL)
 		{
@@ -36,8 +33,7 @@ int main(void)
 		array[argc] = NULL;
 		pid = fork();
 		if (pid == 0)
-		{
-			/* Checks if the command exits in the PATH */
+		{/* Checks if the command exits in the PATH */
 			command = get_path(array[0]);
 			if (command)
 				execve(array[0], array, NULL);
@@ -49,7 +45,6 @@ int main(void)
 			wait(&status);
 		free(array);
 	}
-	token = splitter(buffer);
-	exit_shell();
+	splitter(buffer);
 	return (0);
 }

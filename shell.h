@@ -15,11 +15,11 @@
 /* functions */
 /*task 2*/
 char **splitter(char *str);
-int handle_args(int ac, char **av);
+int handle_args(void);
 /*task 3*/
 char *get_path(char *command);
 /*task 4*/
-void exit_shell();
+void exit_shell(void);
 /*task 5*/
 char *_getenv(const char *env_name);
 

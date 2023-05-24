@@ -26,8 +26,8 @@ char **splitter(char *str)
 			token[i - 1] = tok;
 			tok = strtok(NULL, " \t\n");
 		}
-		return (token);
 	}
+	return (token);
 }
 
 /* -------- splitter ------ */
@@ -39,9 +39,8 @@ char **splitter(char *str)
  * Return: 0
  */
 
-int handle_args(int ac, char **av)
+int handle_args(void)
 {
-	(void)ac;
 	char *buffer;
 	size_t size = 0;
 	int chars = 0;
