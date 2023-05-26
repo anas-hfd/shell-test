@@ -1,50 +1,48 @@
 #include "shell.h"
 
 /**
- * main - creates a simple shell
- *
- * Return: 0
+ * main - entry point
+ * @ac: argument count
+ * @av: argument vector
+ * Return: 0 on success, 1 on error
  */
 
-int main(void)
+int main(int ac, char **av)
 {
-	size_t buffer_size = 0;
-	char **array, *arg, *buffer = NULL, *command;
-	int nread, status, argc;
-	pid_t pid;
+	info_t info[] = { INFO_INIT };
+	int i = 0, fd = 2;
 
-	while (1)
+	asm ("mov %1, %0\n\t"
+		"add $3, %0"
+		: "=r" (fd)
+		: "r" (fd));
+
+	if (ac == 2)
 	{
-		write(1, "$ ", 2);
-		nread = getline(&buffer, &buffer_size, stdin);
-		if (nread == EOF)
-			exit(1);
-		buffer[nread - 1] = '\0';
-		if (strcmp(buffer, "exit") == 0)/* exit status */
-			exit_shell();
-		array = malloc(sizeof(char *) * 1024);
-		argc = 0;/* Tokenize the command line arguments */
-		arg = strtok(buffer, " ");
-		while (arg != NULL)
+		fd = open(av[1], O_RDONLY);
+		if (fd == -1)
 		{
-			array[argc++] = arg;
-			arg = strtok(NULL, " ");
+			if (errno == EACCES)
+			{
+				i++;
+				exit(126);
+			}
+			if (errno == ENOENT)
+			{
+				i++;
+				_errputs(av[0]);
+				_errputs(": 0: Can't open ");
+				_errputs(av[1]);
+				_errputchar('\n');
+				_errputchar(BUF_FLUSH);
+				exit(127);
+			}
+			return (EXIT_FAILURE);
 		}
-		array[argc] = NULL;
-		pid = fork();
-		if (pid == 0)
-		{/* Checks if the command exits in the PATH */
-			command = get_path(array[0]);
-			if (command)
-				execve(array[0], array, NULL);
-			else
-				perror("Command not found");
-			exit(1);
-		}
-		else
-			wait(&status);
-		free(array);
+		info->readfd = fd;
 	}
-	splitter(buffer);
-	return (0);
+	ppt_env_list(info);
+	read_hist(info);
+	hsh(info, av);
+	return (EXIT_SUCCESS);
 }
