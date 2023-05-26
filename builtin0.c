@@ -6,19 +6,19 @@
  *  Return: (0) if inf.argv[0] != "exit"
  */
 
-int _exit(inf_t *inf)
+int _fexit(info_t *inf)
 {
 	int check;
 
 	if (inf->argv[1])
 	{
 		check = _erratoi(inf->argv[1]);
-		if (tcheck == -1)
+		if (check == -1)
 		{
 			inf->status = 2;
 			print_error(inf, "Illegal number: ");
-			_eputs(inf->argv[1]);
-			_eputchar('\n');
+			_errputs(inf->argv[1]);
+			_errputchar('\n');
 			return (1);
 		}
 		inf->err_num = _erratoi(inf->argv[1]);
@@ -33,7 +33,7 @@ int _exit(inf_t *inf)
  * @inf: Structure containing potential arguments
  *  Return: Always 0
  */
-int _cd(inf_t *inf)
+int _cd(info_t *inf)
 {
 	char *s, *dir, buffer[1024];
 	int cdret;
@@ -43,50 +43,51 @@ int _cd(inf_t *inf)
 		_puts("TODO: >>getcwd failure emsg here<<\n");
 	if (!inf->argv[1])
 	{
-		dir = _getenv(inf, "HOME=");
+		dir = _getenviron(inf, "HOME=");
 		if (!dir)
-				chdir((dir = _getenv(inf, "PWD=")) ? dir : "/");
+			cdret = /* TODO: what should this be? */
+				chdir((dir = _getenviron(inf, "PWD=")) ? dir : "/");
 		else
 			cdret = chdir(dir);
 	}
 	else if (_strcmp(inf->argv[1], "-") == 0)
 	{
-		if (!_getenv(inf, "OLDPWD="))
+		if (!_getenviron(inf, "OLDPWD="))
 		{
 			_puts(s);
 			_putchar('\n');
 			return (1);
 		}
-		_puts(_getenv(inf, "OLDPWD=")), _putchar('\n');
-			chdir((dir = _getenv(inf, "OLDPWD=")) ? dir : "/");
+		_puts(_getenviron(inf, "OLDPWD=")), _putchar('\n');
+			chdir((dir = _getenviron(inf, "OLDPWD=")) ? dir : "/");
 	}
 	else
 		cdret = chdir(inf->argv[1]);
 	if (cdret == -1)
 	{
 		print_error(inf, "can't cd to ");
-		_eputs(inf->argv[1]), _eputchar('\n');
+		_errputs(inf->argv[1]), _errputchar('\n');
 	}
 	else
 	{
-		_setenv(inf, "OLDPWD", _getenv(inf, "PWD="));
+		_setenv(inf, "OLDPWD", _getenviron(inf, "PWD="));
 		_setenv(inf, "PWD", getcwd(buffer, 1024));
 	}
 	return (0);
 }
 
 /**
- * _myhelp - changes the current directory of the process
+ * _help - changes the current directory of the process
  * @inf: Structure containing potential arguments.
  *  Return: Always 0
  */
-int _myhelp(inf_t *inf)
+int _help(info_t *inf)
 {
-	char **argums;
+	char **args;
 
-	argums = inf->argv;
+	args = inf->argv;
 	_puts("help call works. Function not yet implemented \n");
 	if (0)
-		_puts(*argums);
+		_puts(*args);
 	return (0);
 }

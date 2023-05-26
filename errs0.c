@@ -13,7 +13,7 @@ void _errputs(char *str)
 		return;
 	while (str[x] != '\0')
 	{
-		_eputchar(str[x]);
+		_errputchar(str[x]);
 		x++;
 	}
 }

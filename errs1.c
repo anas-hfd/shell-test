@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * _eratoi - converts a string to number
+ * _erratoi - converts a string to number
  * @s: the string to be converted
  * Return: int
  */
@@ -40,11 +40,11 @@ int _erratoi(char *s)
  * Return: 0 if no numbers in string, converted number otherwise
  *        -1 on error
  */
-void print_error(inf_t *inf, char *estr)
+void print_error(info_t *inf, char *estr)
 {
 	_errputs(inf->fname);
 	_errputs(": ");
-	print_d(inf->line_count, STDERR_FILENO);
+	dec_print(inf->line_count, STDERR_FILENO);
 	_errputs(": ");
 	_errputs(inf->argv[0]);
 	_errputs(": ");
@@ -54,10 +54,10 @@ void print_error(inf_t *inf, char *estr)
 /**
  * dec_print - function prints a decimal
  * @input: the input
- * @fd: the file descriptor 
+ * @fd: the file descriptor
  * Return: number of characters printed
  */
-int print_d(int input, int fd)
+int dec_print(int input, int fd)
 {
 	int (*__putchar)(char) = _putchar;
 	int i, count = 0;
@@ -73,7 +73,7 @@ int print_d(int input, int fd)
 	}
 	else
 		abs = input;
-	current = abs;
+	curr = abs;
 	for (i = 1000000000; i > 1; i /= 10)
 	{
 		if (abs / i)
@@ -134,7 +134,7 @@ void rm_comments(char *buf)
 	int x;
 
 	for (x = 0; buf[x] != '\0'; x++)
-		if (buf[x] == '#' && (!x || buf[i - x] == ' '))
+		if (buf[x] == '#' && (!x || buf[x - 1] == ' '))
 		{
 			buf[x] = '\0';
 			break;

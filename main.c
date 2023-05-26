@@ -41,8 +41,8 @@ int main(int ac, char **av)
 		}
 		info->readfd = fd;
 	}
-	ppt_env_list(info);
+	ppt_environ(info);
 	read_hist(info);
-	hsh(info, av);
+	_hsh(info, av);
 	return (EXIT_SUCCESS);
 }

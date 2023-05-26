@@ -5,7 +5,7 @@
  * @inf: struct address
  * Return: void
  */
-void clearinfo(inf_t *inf)
+void clearinfo(info_t *inf)
 {
 	inf->arg = NULL;
 	inf->argv = NULL;
@@ -20,14 +20,14 @@ void clearinfo(inf_t *inf)
  * Return: Void
  */
 
-void setinfo(inf_t *inf, char **av)
+void setinfo(info_t *inf, char **av)
 {
 	int x = 0;
 
 	inf->fname = av[0];
 	if (inf->arg)
 	{
-		inf->argv = strtow(inf->arg, " \t");
+		inf->argv = str_wrd(inf->arg, " \t");
 		if (!inf->argv)
 		{
 
@@ -42,8 +42,8 @@ void setinfo(inf_t *inf, char **av)
 			;
 		inf->argc = x;
 
-		replace_alias(inf);
-		replace_vars(inf);
+		replacealias(inf);
+		replacevars(inf);
 	}
 }
 
@@ -52,9 +52,9 @@ void setinfo(inf_t *inf, char **av)
  * @inf: struct address
  * @all: true if freeing all fields
  */
-void freeinfo(inf_t *inf, int all)
+void freeinfo(info_t *inf, int all)
 {
-	ffree(inf->argv);
+	_free(inf->argv);
 	inf->argv = NULL;
 	inf->path = NULL;
 	if (all)
@@ -65,19 +65,19 @@ void freeinfo(inf_t *inf, int all)
 		}
 		if (inf->env)
 		{
-			free_list(&(inf->env));
+			freelist(&(inf->env));
 		}
 		if (inf->history)
 		{
-			free_list(&(inf->history));
+			freelist(&(inf->history));
 		}
 		if (inf->alias)
 		{
-			free_list(&(inf->alias));
+			freelist(&(inf->alias));
 		}
-		ffree(inf->environ);
+		_free(inf->environ);
 		inf->environ = NULL;
-		bfree((void **)inf->cmd_buf);
+		free((void **)inf->cmd_buf);
 		if (inf->readfd > 2)
 			close(inf->readfd);
 		_putchar(BUF_FLUSH);

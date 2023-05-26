@@ -16,22 +16,22 @@ ssize_t input_buffer(info_t *info, char **buf, size_t *len)
 	{
 		free(*buf);
 		*buf = NULL;
-		signal(SIGINT, sigintHandler);
+		signal(SIGINT, sigHandler);
 #if USE_GETLINE
 		s = getline(buf, &length, stdin);
 #else
-		s = _getline(info, buf, &length);
+		s = getline(buf, &length, info);
 #endif
 		if (s > 0)
 		{
 			if ((*buf)[s - 1] == '\n')
 			{
-				(*buf)[r - 1] = '\0';
+				(*buf)[s - 1] = '\0';
 				s--;
 			}
 			info->linecount_flag = 1;
-			remove_comments(*buf);
-			build_history_list(info, *buf, info->histcount++);
+			rm_comments(*buf);
+			build_hist(info, *buf, info->histcount++);
 			{
 				*len = s;
 				info->cmd_buf = buf;
@@ -54,17 +54,17 @@ ssize_t get_inp(info_t *info)
 	char **buf_p = &(info->arg), *c;
 
 	_putchar(BUF_FLUSH);
-	s = input_buf(info, &buf, &len);
+	s = input_buffer(info, &buf, &len);
 	if (s == -1) /* EOF */
 		return (-1);
 	if (len)
 	{
 		j = k;
 		c = buf + k;
-		check_chain(info, buf, &j, k, len);
+		checkchain(info, buf, &j, k, len);
 		while (j < len)
 		{
-			if (is_chain(info, buf, &j))
+			if (_chain(info, buf, &j))
 				break;
 			j++;
 		}
@@ -95,7 +95,7 @@ ssize_t read_buffer(info_t *info, char *buf, size_t *i)
 
 	if (*i)
 		return (0);
-	r = read(info->readfd, buf, READ_BUF_SIZE);
+	s = read(info->readfd, buf, READ_BUF_SIZE);
 	if (s >= 0)
 		*i = s;
 	return (s);
@@ -108,7 +108,7 @@ ssize_t read_buffer(info_t *info, char *buf, size_t *i)
  * @length: size of preallocated ptr buffer if not NULL
  * Return: s
  */
-int _getline(info_t *info, char **ptr, size_t *length)
+int _line(info_t *info, char **ptr, size_t *length)
 {
 	static char buf[READ_BUF_SIZE];
 	static size_t ind, len;
@@ -122,11 +122,11 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	if (ind == len)
 		ind = len = 0;
 
-	r = read_buf(info, buf, &len);
+	r = read_buffer(info, buf, &len);
 	if (r == -1 || (r == 0 && len == 0))
 		return (-1);
 
-	c = _strchr(buf + i, '\n');
+	c = _strchr(buf + ind, '\n');
 	k = c ? 1 + (unsigned int)(c - buf) : len;
 	new_p = _realloc(p, s, s ? s + k : k + 1);
 	if (!new_p) /* MALLOC FAILURE! */

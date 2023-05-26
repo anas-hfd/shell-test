@@ -5,7 +5,7 @@
  * @inf: Structure containing potential arguments
  *  Return: Always 0
  */
-int _history(inf_t *inf)
+int _history(info_t *inf)
 {
 	print_list(inf->history);
 	return (0);
@@ -17,7 +17,7 @@ int _history(inf_t *inf)
  * @str: the string
  * Return: Always 0 on success, 1 on error
  */
-int no_alias(inf_t *inf, char *str)
+int no_alias(info_t *inf, char *str)
 {
 	char *a, b;
 	int result;
@@ -27,8 +27,8 @@ int no_alias(inf_t *inf, char *str)
 		return (1);
 	b = *a;
 	*a = 0;
-	result = delete_node_at_index(&(inf->alias),
-	get_node_index(inf->alias, node_starts_with(inf->alias, str, -1)));
+	result = deletenode_index(&(inf->alias),
+	getnode_index(inf->alias, node_start(inf->alias, str, -1)));
 	*a = b;
 	return (result);
 }
@@ -39,7 +39,7 @@ int no_alias(inf_t *inf, char *str)
  * @str: the string
  * Return: Always 0 on success, 1 on error
  */
-int set_alias(inf_t *inf, char *str)
+int set_alias(info_t *inf, char *str)
 {
 	char *c;
 
@@ -47,10 +47,10 @@ int set_alias(inf_t *inf, char *str)
 	if (!c)
 		return (1);
 	if (!*++c)
-		return (unset_alias(inf, str));
+		return (set_alias(inf, str));
 
-	unset_alias(inf, str);
-	return (add_node_end(&(inf->alias), str, 0) == NULL);
+	set_alias(inf, str);
+	return (node_end(&(inf->alias), str, 0) == NULL);
 }
 
 /**
@@ -80,7 +80,7 @@ int print_alias(list_t *node)
  * @inf: Structure containing potential arguments
  *  Return: Always 0
  */
-int _alias(inf_t *inf)
+int _alias(info_t *inf)
 {
 	int i = 0;
 	char *c = NULL;
@@ -102,7 +102,7 @@ int _alias(inf_t *inf)
 		if (c)
 			set_alias(inf, inf->argv[i]);
 		else
-			print_alias(node_starts_with(inf->alias, inf->argv[i], '='));
+			print_alias(node_start(inf->alias, inf->argv[i], '='));
 	}
 
 	return (0);

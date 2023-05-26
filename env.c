@@ -1,93 +1,92 @@
 #include "shell.h"
 
 /**
- * _env - prints the environment
+ * _getenv - returns our environ
  * @inf: Structure containing potential arguments
  * Return: Always 0
  */
 
-int _env(inf_t *inf)
+char **_getenv(info_t *inf)
 {
-	print_list_str(inf->env);
-	return (0);
-}
-
-/**
- * _getenvi - gets the value of an environ
- * @inf: Structure containing potential arguments
- * @name: env name
- * Return: the value
- */
-
-char *_getenvi(inf_t *inf, const char *name)
-{
-	list_t *node = inf->env;
-	char *c;
-
-	while (node)
+	if (!inf->environ || inf->env_changed)
 	{
-		c = starts_with(node->str, name);
-		if (c && *c)
-			return (c);
-		node = node->next;
+		inf->environ = list_strings(inf->env);
+		inf->env_changed = 0;
 	}
-	return (NULL);
-}
 
-/**
- * _setenv - Initialize a new environment variable
- * @inf: Structure containing potential arguments
- *  Return: Always 0
- */
-
-int _setenv(inf_t *inf)
-{
-	if (inf->argc != 3)
-	{
-		_eputs("Incorrect number of arguements\n");
-		return (1);
-	}
-	if (_setenv(inf, inf->argv[1], inf->argv[2]))
-	{
-		return (0);
-	}
-	return (1);
+	return (inf->environ);
 }
 
 /**
  * _unsetenv - Remove an environment variable
  * @inf: Structure containing potential arguments
- *  Return: Always 0
+ *  Return: 1 on delete, 0 otherwise
+ * @var: the string env var
  */
-
-int _unsetenv(inf_t *inf)
+int _unsetenv(info_t *inf, char *var)
 {
-	int x;
+	list_t *node = inf->env;
+	size_t i = 0;
+	char *c;
 
-	if (inf->argc == 1)
+	if (!node || !var)
 	{
-		_eputs("Too few arguements.\n");
-		return (1);
+		return (0);
 	}
-	for (x = 1; x <= inf->argc; x++)
-		_unsetenv(inf, inf->argv[i]);
 
-	return (0);
+	while (node)
+	{
+		c = startswith(node->str, var);
+		if (c && *c == '=')
+		{
+			inf->env_changed = deletenode_index(&(inf->env), i);
+			i = 0;
+			node = inf->env;
+			continue;
+		}
+		node = node->next;
+		i++;
+	}
+	return (inf->env_changed);
 }
 
 /**
- * ppt_env_list - populates env linked list
- * @inf: Structure of arguments
- * Return: int 0
+ * _setenv - Initialize a new environment variable
+ * @inf: Structure containing potential arguments
+ * @var: the string env var property
+ * @value: the string env var value
+ *  Return: Always 0
  */
-
-int ppt_env_list(inf_t *inf)
+int _setenv(info_t *inf, char *var, char *value)
 {
-	list_t *node = NULL;
-	size_t x;
+	char *buf = NULL;
+	list_t *node;
+	char *c;
 
-	for (x = 0; environ[x]; x++)
-		add_node_end(&node, environ[x], 0);
-	inf->env = node;
+	if (!var || !value)
+		return (0);
+
+	buf = malloc(_strlen(var) + _strlen(value) + 2);
+	if (!buf)
+		return (1);
+	_strcpy(buf, var);
+	_strcat(buf, "=");
+	_strcat(buf, value);
+	node = inf->env;
+	while (node)
+	{
+		c = startswith(node->str, var);
+		if (c && *c == '=')
+		{
+			free(node->str);
+			node->str = buf;
+			inf->env_changed = 1;
+			return (0);
+		}
+		node = node->next;
+	}
+	node_end(&(inf->env), buf, 0);
+	free(buf);
+	inf->env_changed = 1;
 	return (0);
 }
